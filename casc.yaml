@@ -8,13 +8,48 @@ jenkins:
     local:
       allowsSignup: false
       users:
-       - id: ${JENKINS_ADMIN_ID}
-         password: ${JENKINS_ADMIN_PASSWORD}
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+        - id: "user1"
+          password: "user1"
+        - id: "user2"
+          password: "user2"
   authorizationStrategy:
-    globalMatrix:
-      permissions:
-        - "Overall/Administer:admin"
-        - "Overall/Read:authenticated"
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Jenkins administrators"
+            permissions:
+              - "Overall/Administer"
+            assignments:
+              - "admin"
+          - name: "readonly"
+            description: "Read-only users"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            assignments:
+              - "authenticated"
+        items:
+          - name: "FolderA"
+            description: "Jobs in Folder A, but not the folder itself"
+            pattern: "FolderA/.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+              - "Job/Delete"
+            assignments:
+              - "user1"
+              - "user2"
+          - name: "FolderB"
+            description: "Jobs in Folder B, but not the folder itself"
+            pattern: "FolderB/.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+            assignments:
+              - "user2"
   remotingSecurity:
     enabled: true
 security:
