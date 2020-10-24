@@ -1,0 +1,39 @@
+---
+jenkins:
+  systemMessage: "Jenkins As Code Concept."
+  views:
+    - myView:
+        name: "Jobs Config as Code"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+       - id: ${JENKINS_ADMIN_ID}
+         password: ${JENKINS_ADMIN_PASSWORD}
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:admin"
+        - "Overall/Read:authenticated"
+  remotingSecurity:
+    enabled: true
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+jobs:
+  - script: >
+      freeStyleJob("Jobs Generator") {
+        scm {
+            github('jeyaramji/jobs', 'main')
+        }
+        steps {
+            dsl {
+              external('*.groovy')
+            }
+        }
+      }
+unclassified:
+  location:
+    url: http://localhost:8080/
